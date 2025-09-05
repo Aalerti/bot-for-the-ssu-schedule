@@ -1,17 +1,18 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-from config import load_config
+# from config import load_config
 from handlers import start, common_handlers
+from parser.parse import parseSSU
 
 
 logging.basicConfig(level=logging.INFO)
 
 
-config = load_config()
+# config = load_config()
 
 
-bot = Bot(token=config.token)
+bot = Bot(token='7963082604:AAH8FgzclJ98-FR-rOyOXkQWPcufGmO48hQ')
 dp = Dispatcher()
 
 

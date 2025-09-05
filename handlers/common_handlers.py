@@ -1,22 +1,25 @@
 import logging
 
 from aiogram import Router, types, F
-from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-
-from services.database import (get_user_group, get_group_schedule,
-                               get_user_faculty_id, show_today_schedule_to_user,
-                               show_tomorrow_schedule_to_user, show_week_schedule_to_user)
+from services.database import (get_user_group,
+                               get_user_faculty_id, show_day_schedule_to_user,
+                               show_week_schedule_to_user)
 from services.week_type import determine_week_type
-from datetime import datetime, timedelta
+from datetime import timedelta
+from parser.parse import parseSSU
 import pytz
 
 router = Router()
 
-
-@router.message(F.text == "📅 Сегодня")
-async def handler_today(message: types.Message):
+@router.message(F.text.in_(["📅 Завтра","📅 Сегодня"]))
+async def handler_day(message: types.Message):
     try:
+        daysplus = 0
+        if message.text=="📅 Сегодня":
+            daysplus = 1
+        elif message.text=="📅 Завтра":
+            daysplus = 2
         user_faculty = get_user_faculty_id(message.from_user.id)
         user_group = get_user_group(message.from_user.id)
         if (not user_group):
@@ -32,49 +35,20 @@ async def handler_today(message: types.Message):
 
         saratov_zone = pytz.timezone('Europe/Saratov')
         saratov_time = utc_time.astimezone(saratov_zone)
-        saratov_date = saratov_time.date()
+        saratov_date = saratov_time.date() + timedelta(days=daysplus)
         week_type = determine_week_type(saratov_date)
 
-        schedule = get_group_schedule(user_faculty, user_group, week_type)
+        schedule = parseSSU()
 
         day_name = get_name_of_day(saratov_date.weekday())
 
-        await message.answer(show_today_schedule_to_user(schedule, day_name, week_type))
+        await message.answer(show_day_schedule_to_user(schedule, day_name, week_type))
 
     except Exception as e:
-        logging.error(f"Errom in handler_today: {e}")
-        await message.answer("Произошла ошибка при получении расписания. Попробуйте позже")
+        logging.error(f"Error in handler_today: {e}")
+        await message.answer(f"Произошла ошибка при получении расписания. Попробуйте позже {e}")
 
-@router.message(F.text == "📅 Завтра")
-async def handler_tomorrow(message: types.Message):
-    try:
-        user_faculty = get_user_faculty_id(message.from_user.id)
-        user_group = get_user_group(message.from_user.id)
-        if (not user_group):
-            await message.answer("Сначала нужно зарегистрироваться. Напиши /start")
-            return
 
-        utc_time = message.date
-
-        if utc_time.tzinfo is not None:
-            utc_time = utc_time.astimezone(pytz.utc)
-        else:
-            utc_time = pytz.utc.localize(utc_time)
-
-        saratov_zone = pytz.timezone('Europe/Saratov')
-        saratov_time = utc_time.astimezone(saratov_zone)
-        saratov_date = saratov_time.date() + timedelta(days=1)
-        week_type = determine_week_type(saratov_date)
-
-        schedule = get_group_schedule(user_faculty, user_group, week_type)
-
-        day_name = get_name_of_day(saratov_date.weekday())
-
-        await message.answer(show_tomorrow_schedule_to_user(schedule, day_name, week_type))
-
-    except Exception as e:
-        logging.error(f"Errom in handler_tomorrow: {e}")
-        await message.answer("Произошла ошибка при получении расписания. Попробуйте позже")
 
 @router.message(F.text == "📅 Неделя")
 async def handler_week(message: types.Message):
@@ -111,7 +85,7 @@ async def handle_help(message: types.Message):
         🤖 <b>Помощь по боту:</b>
         
         📅 <b>Сегодня</b> - показать расписание на сегодня
-        📆 <b>Завтра</b> - показать расписание на завтра
+        📅 <b>Завтра</b> - показать расписание на завтра
         📋 <b>Неделя</b> - показать расписание на всю неделю
         
         🔄 <b>Сменить группу</b> - начать регистрацию заново

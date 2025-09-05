@@ -50,7 +50,7 @@ def get_main_keyboard() -> ReplyKeyboardMarkup:
         ReplyKeyboardMarkup - это статичная клавиатура, которая появляется снизу экрана.
     """
     today_btn = KeyboardButton(text="📅 Сегодня")
-    tomorrow_btn = KeyboardButton(text="📅 Завтра")
+    tomorrow_btn = KeyboardButton(text="📆 Завтра")
     week_btn = KeyboardButton(text="📋 Неделя")
     help_btn = KeyboardButton(text="❓ Помощь")
     menu_btn = KeyboardButton(text="📋 Меню",)

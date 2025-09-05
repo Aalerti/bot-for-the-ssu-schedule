@@ -18,19 +18,19 @@ def get_group_schedule(faculty_id: str, group_id: str, week_type: str) -> Dict[s
         ],
     }
 
+def show_today_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], day: str, week_type: str) -> str:
+    """
+    Заглушка.
+    Позже будет возвращать оформленное расписание на сегодня.
+    """
+    answer: str = ""
 
-def show_day_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], day: str, week_type: str) -> str:
-    textSchedule = ""
-    for i in schedule[day]:
-        normSyntaxStri = i
-        for j in range(100, 1, -1):
-            normSyntaxStri = normSyntaxStri.replace(" "*j, " ")
-        textSchedule+=normSyntaxStri
-        textSchedule+="\n"
-    if textSchedule!="":
-        return textSchedule
-    else:
-        return "Нет занятий! Ура! Рекомендуем попить какао."
+def show_tomorrow_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], day: str, week_type: str) -> str:
+    """
+    Заглушка.
+    Позже будет возвращать оформленное расписание на завтра.
+    """
+    answer: str = ""
 
 def show_week_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], week_type: str) -> str:
     """
