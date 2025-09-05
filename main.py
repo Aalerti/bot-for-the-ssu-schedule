@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 # config = load_config()
 
 
-bot = Bot(token='7963082604:AAH8FgzclJ98-FR-rOyOXkQWPcufGmO48hQ')
+bot = Bot(token='')
 dp = Dispatcher()
 
 
