@@ -21,13 +21,19 @@ async def cmd_start(message: types.Message, state: FSMContext):
    user_group = get_user_group(message.from_user.id)
 
    if user_group:
-       await message.answer(f"Привет! Твоя группа: {user_group}. Используй кнопки для просмотра расписания.")
+       from services.keyboards import get_main_keyboard
+       await message.answer(
+           f"Привет! Твоя группа: {user_group}. Выбери действие:",
+           reply_markup=get_main_keyboard()
+       )
    else:
        await message.answer(
             "Привет! Я показываю расписания для всего СГУ им. Чернышевского. Для начала выбери свой факультет:",
             reply_markup=get_faculties_keyboard()  # Добавляем инлайн-клавиатуру
        )
        await state.set_state(Registration.choosing_faculty)
+
+
 
 @router.callback_query(Registration.choosing_faculty, FacultyCallback.filter())
 async def process_faculty_selection(callback: types.CallbackQuery, callback_data: FacultyCallback, state: FSMContext):
@@ -103,6 +109,12 @@ async def process_group_selection(
 
         await callback.message.edit_text(
             f"Отлично! Ты зарегистрирован в группе {callback_data.group_name}. Теперь ты можешь использовать бота."
+            ,reply_markup=None
+        )
+        from services.keyboards import get_main_keyboard
+        await callback.message.answer(
+            "Выбери действие:",
+            reply_markup=get_main_keyboard()
         )
 
         await callback.answer()

@@ -18,7 +18,7 @@ def numerator_or_denominator(message: types.Message) -> str:
     week_type = determine_week_type(saratov_date)
     return week_type
 
-def determine_week_type(saratov_date):
+def determine_week_type(saratov_date) -> str:
     if isinstance(saratov_date, datetime):
         saratov_date = saratov_date.date()
 

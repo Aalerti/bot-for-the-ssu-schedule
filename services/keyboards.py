@@ -2,6 +2,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters.callback_data import CallbackData
 from services.database import get_all_faculties, get_groups_by_faculty
 
+"""
+Inline keyboards
+"""
 class FacultyCallback(CallbackData, prefix="faculty"):
     faculty_id: int
 
@@ -36,3 +39,29 @@ def get_groups_keyboard(faculty_id: int) -> InlineKeyboardMarkup:
         buttons.append([button])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+"""
+Reply keyboards
+"""
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+def get_main_keyboard() -> ReplyKeyboardMarkup:
+    """
+        Создает основную клавиатуру с кнопками расписания.
+        ReplyKeyboardMarkup - это статичная клавиатура, которая появляется снизу экрана.
+    """
+    today_btn = KeyboardButton(text="📅 Сегодня")
+    tomorrow_btn = KeyboardButton(text="📆 Завтра")
+    week_btn = KeyboardButton(text="📋 Неделя")
+    help_btn = KeyboardButton(text="❓ Помощь")
+    menu_btn = KeyboardButton(text="📋 Меню",)
+    change_group_btn = KeyboardButton(text="🔄 Сменить группу")
+
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [today_btn,tomorrow_btn],
+            [week_btn],
+            [help_btn, menu_btn, change_group_btn]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=False
+    )
