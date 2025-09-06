@@ -17,21 +17,26 @@ class Registration(StatesGroup):
 
 @router.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
+    await state.clear()
+    try:
+        user_group = get_user_group(message.from_user.id)
 
-   user_group = get_user_group(message.from_user.id)
+        if user_group:
+            from services.keyboards import get_main_keyboard
+            await message.answer(
+                f"Привет! Твоя группа: {user_group}. Выбери действие:",
+                reply_markup=get_main_keyboard()
+            )
+        else:
+            await message.answer(
+                "Привет! Я показываю расписания для всего СГУ им. Чернышевского. Для начала выбери свой факультет:",
+                reply_markup=get_faculties_keyboard()  # Добавляем инлайн-клавиатуру
+            )
+            await state.set_state(Registration.choosing_faculty)
 
-   if user_group:
-       from services.keyboards import get_main_keyboard
-       await message.answer(
-           f"Привет! Твоя группа: {user_group}. Выбери действие:",
-           reply_markup=get_main_keyboard()
-       )
-   else:
-       await message.answer(
-            "Привет! Я показываю расписания для всего СГУ им. Чернышевского. Для начала выбери свой факультет:",
-            reply_markup=get_faculties_keyboard()  # Добавляем инлайн-клавиатуру
-       )
-       await state.set_state(Registration.choosing_faculty)
+    except Exception as e:
+        logging.error(f"Unexpected error in cmd_start: {e}")
+        await message.answer("Произошла непредвиденная ошибка. Попробуйте позже.")
 
 
 

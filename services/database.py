@@ -18,19 +18,19 @@ def get_group_schedule(faculty_id: str, group_id: str, week_type: str) -> Dict[s
         ],
     }
 
-def show_today_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], day: str, week_type: str) -> str:
-    """
-    Заглушка.
-    Позже будет возвращать оформленное расписание на сегодня.
-    """
-    answer: str = ""
 
-def show_tomorrow_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], day: str, week_type: str) -> str:
-    """
-    Заглушка.
-    Позже будет возвращать оформленное расписание на завтра.
-    """
-    answer: str = ""
+def show_day_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], day: str, week_type: str) -> str:
+    textSchedule = ""
+    for i in schedule[day]:
+        normSyntaxStri = i
+        for j in range(100, 1, -1):
+            normSyntaxStri = normSyntaxStri.replace(" "*j, " ")
+        textSchedule+=normSyntaxStri
+        textSchedule+="\n"
+    if textSchedule!="":
+        return textSchedule
+    else:
+        return "Нет занятий! Ура! Рекомендуем попить какао."
 
 def show_week_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], week_type: str) -> str:
     """
@@ -71,17 +71,17 @@ def get_all_faculties() -> Optional[Dict]:
     Получить все факультеты
     """
     return {
-        1: "Факультет информатики",
-        2: "Факультет математики",
-        3: "Факультет физики"
+        "knt": "Факультет информатики",
+        "mat": "Факультет математики",
+        "fiz": "Факультет физики"
     }
-def get_groups_by_faculty(faculty_id: int) -> Optional[List[str]]: # может словарь надо, не знаю пока что
+def get_groups_by_faculty(faculty_id: str) -> Optional[List[str]]: # может словарь надо, не знаю пока что
     """
     Заглушка.
     Получить группы по факультету
     """
     return ["141", "151", "142"]
-def set_user_faculty(user_id: int, faculty_id: int):
+def set_user_faculty(user_id: int, faculty_id: str):
     """
     Заглушка.
     Сохранить факультет пользователя
@@ -93,7 +93,7 @@ def set_user_group(user_id: int, group_name: str):
     Сохранить группу пользователя
     """
 
-def save_user_in_database(user_id: int, faculty_id: int, group_id: str):
+def save_user_in_database(user_id: int, faculty_id: str, group_id: str):
     """
     Заглушка.
     Сохранить пользователя в бд
@@ -104,14 +104,14 @@ def delete_user_data(user_id: int):
     Удалять данные пользователя из бд
     """
 
-def group_exists(faculty_id: int, group_id: str) -> bool:
+def group_exists(faculty_id: str, group_id: str) -> bool:
     """
     Заглушка.
     Функция для проверки существования группы в бд
     """
     return True
 
-def faculty_exists(faculty_id: int) -> bool:
+def faculty_exists(faculty_id: str) -> bool:
     """
     Заглушка.
     Функция для проверки существования факультета в бд

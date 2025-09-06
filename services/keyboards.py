@@ -6,7 +6,7 @@ from services.database import get_all_faculties, get_groups_by_faculty
 Inline keyboards
 """
 class FacultyCallback(CallbackData, prefix="faculty"):
-    faculty_id: int
+    faculty_id: str
 
 class GroupCallback(CallbackData, prefix="group"):
     group_name: str
@@ -18,13 +18,13 @@ def get_faculties_keyboard() -> InlineKeyboardMarkup:
     for faculty_id, faculty_name in faculties.items():
         button = InlineKeyboardButton(
             text=faculty_name,
-            callback_data=FacultyCallback(faculty_id=faculty_id).pack()
+            callback_data=FacultyCallback(faculty_id=faculty_id).pack() # ЗДЕСЬ СДЕЛАЙ faculty_id=faculty_name ЕСЛИ ПЛАНИРУЕТЕ РАБОТАТЬ ТОЛЬКО С НАЗВАНИМ
         )
         buttons.append([button])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def get_groups_keyboard(faculty_id: int) -> InlineKeyboardMarkup:
+def get_groups_keyboard(faculty_id: str) -> InlineKeyboardMarkup:
     # groups: List[str]
     groups = get_groups_by_faculty(faculty_id=faculty_id)
     if not groups:
