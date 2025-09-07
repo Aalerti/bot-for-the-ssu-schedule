@@ -7,7 +7,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 
 from services.keyboards import get_faculties_keyboard, FacultyCallback, GroupCallback
-from services.database import get_user_group
+from services.database import *
 
 router = Router()
 
@@ -19,9 +19,12 @@ class Registration(StatesGroup):
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
     try:
+        user = User.select().where(User.user_id == message.from_user.id).first()
+        if user is None:
+            user = User(user_id=message.from_user.id, faculty_id='', group_id=0)
+            user.save()
         user_group = get_user_group(message.from_user.id)
-
-        if user_group:
+        if user_group !=0:
             from services.keyboards import get_main_keyboard
             await message.answer(
                 f"Привет! Твоя группа: {user_group}. Выбери действие:",
@@ -90,7 +93,7 @@ async def process_group_selection(
         from services.database import get_groups_by_faculty, group_exists
         faculty_groups = get_groups_by_faculty(faculty_id)
 
-        if not faculty_groups:
+        if faculty_groups is None:
             await callback.answer("Ошибка конфигурации: для этого факультета нет групп")
             await state.clear()
             return

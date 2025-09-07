@@ -1,17 +1,18 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-from config import load_config
+# from config import load_config
 from handlers import start, common_handlers
 
 
 logging.basicConfig(level=logging.INFO)
 
 
-config = load_config()
+# config = load_config()
 
 
-bot = Bot(token=config.token)
+# bot = Bot(token=config.token)
+bot = Bot(token='7097280387:AAFfZN1Kt77d8tSaAbrtLR0wLcNji5WvT7k')
 dp = Dispatcher()
 
 

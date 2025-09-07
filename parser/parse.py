@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
-def parseSSU():
-    a = requests.get("https://sgu.ru/schedule/knt/do/151")
+def parseSSU(faculty_id, group_id):
+    a = requests.get(f"https://sgu.ru/schedule/{faculty_id}/do/{group_id}")
     html = a.text
     soup = BeautifulSoup(html, 'html.parser')
     scheduleHTML = soup.find("tbody")

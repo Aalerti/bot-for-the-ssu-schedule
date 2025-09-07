@@ -2,9 +2,7 @@ import logging
 
 from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
-from services.database import (get_user_group,
-                               get_user_faculty_id, show_day_schedule_to_user,
-                               show_week_schedule_to_user)
+from services.database import *
 from services.week_type import determine_week_type
 from datetime import timedelta
 from parser.parse import parseSSU
@@ -35,7 +33,7 @@ async def handler_day(message: types.Message):
         saratov_date = saratov_time.date() + timedelta(days= 1 if message.text == "📅 Сегодня" else 2)
         week_type = determine_week_type(saratov_date)
 
-        schedule = parseSSU()
+        schedule = parseSSU(user_faculty, user_group)
 
         day_name = get_name_of_day(saratov_date.weekday())
 
@@ -72,7 +70,7 @@ async def handler_week(message: types.Message):
         await message.answer(show_week_schedule_to_user(schedule, week_type))
 
     except Exception as e:
-        logging.error(f"Errom in handler_week: {e}")
+        logging.error(f"Error in handler_week: {e}")
         await message.answer("Произошла ошибка при получении расписания. Попробуйте позже")
 
 
