@@ -36,12 +36,18 @@ def parseSSU(faculty_id, group_id, message: types.Message):
                 elif denom is None:
                     currentNum = "Знаменатель"
                 lessonNameHtml = j.find(class_="schedule-table__lesson-name")
+                teacherName = ""
+                roomName = ""
                 if lessonNameHtml is None:
                     lessonName = ""
                 else:
                     lessonName = lessonNameHtml.text
+                    teacherNameHtml = j.find(class_="schedule-table__lesson-teacher")
+                    roomNameHtml = j.find(class_="schedule-table__lesson-room")
+                    teacherName = " " + teacherNameHtml.text
+                    roomName = " " + roomNameHtml.text
                 if currentNum == numerator_or_denominator(message) or currentNum=="":
-                    informationOfLesson = informationOfLesson + lessonName
+                    informationOfLesson = informationOfLesson + lessonName + teacherName + roomName
                 else:
                     informationOfLesson = ""
                 curTimeFrame.append(informationOfLesson)
