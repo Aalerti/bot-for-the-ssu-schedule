@@ -25,3 +25,12 @@
 #
 #
 # main()
+
+from services.database import faculty_exists, group_exists
+def test():
+    print(faculty_exists("kn"))
+    print(group_exists("knt", "15"))
+
+
+if __name__ == "__main__":
+    test()

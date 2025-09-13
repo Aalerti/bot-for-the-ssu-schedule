@@ -33,19 +33,42 @@ def get_group_schedule(faculty_id: str, group_id: str, week_type: str) -> Dict[s
         ],
     }
 
+# Dict[str, List[Dict[str, str]]]
+import re
+def show_day_schedule_to_user(schedule: dict, day: str, week_type: str) -> str:
+    day_schedule = schedule.get(day, [])
 
-def show_day_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], day: str, week_type: str) -> str:
-    textSchedule = ""
-    for i in schedule[day]:
-        normSyntaxStri = i
-        for j in range(100, 1, -1):
-            normSyntaxStri = normSyntaxStri.replace(" "*j, " ")
-        textSchedule+=normSyntaxStri
-        textSchedule+="\n"
-    if textSchedule!="":
-        return textSchedule
-    else:
-        return "Нет занятий! Ура! Рекомендуем попить какао."
+    # Если пар нет
+    if not day_schedule:
+        return f"📅 {day} ({week_type})\n\nПар нет! 🎉"
+
+    # Формируем заголовок
+    result = f"📅 {day} ({week_type})\n\n"
+
+    # Обрабатываем каждую пару
+    for i, lesson_str in enumerate(day_schedule, 1):
+        # Очищаем строку от лишних пробелов и переносов
+        cleaned_str = re.sub(r'\s+', ' ', lesson_str).strip()
+
+
+        # Разделяем время и предмет
+        if ": " in cleaned_str:
+            time, subject = cleaned_str.split(": ", 1)
+            time = time.strip()
+            subject = subject.strip()
+
+            # Убираем лишние дефисы и пробелы в начале предмета
+            if subject.startswith('-'):
+                subject = subject[1:].strip()
+        else:
+            time = "Время не указано"
+            subject = cleaned_str.strip()
+
+        # Добавляем номер пары
+        result += f"{i}. 🕒 {time} - {subject}\n\n"
+
+
+    return result
 
 def show_week_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], week_type: str) -> str:
     """
@@ -118,15 +141,9 @@ def delete_user_data(user_id: int):
     return
 
 def group_exists(faculty_id: str, group_id: str) -> bool:
-    """
-    Заглушка.
-    Функция для проверки существования группы в бд
-    """
-    return True
+    all_groups = get_groups_by_faculty(faculty_id)
+    return group_id in all_groups
 
 def faculty_exists(faculty_id: str) -> bool:
-    """
-    Заглушка.
-    Функция для проверки существования факультета в бд
-    """
-    return True
+    all_faculties = get_all_faculties()
+    return faculty_id in all_faculties
