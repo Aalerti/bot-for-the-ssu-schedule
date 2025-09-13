@@ -37,6 +37,6 @@ def determine_week_type(saratov_date) -> str:
     week_number = (target_monday - first_monday).days // 7
 
     if week_number % 2 == 0:
-        return "числитель"
+        return "Числитель"
     else:
-        return "знаменатель"
+        return "Знаменатель"

@@ -33,7 +33,7 @@ async def handler_day(message: types.Message):
         saratov_date = saratov_time.date() + timedelta(days= 1 if message.text == "📅 Сегодня" else 2)
         week_type = determine_week_type(saratov_date)
 
-        schedule = parseSSU(user_faculty, user_group)
+        schedule = parseSSU(user_faculty, user_group, message)
 
         day_name = get_name_of_day(saratov_date.weekday())
 

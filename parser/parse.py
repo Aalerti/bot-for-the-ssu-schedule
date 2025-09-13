@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
+from services.week_type import *
 
-def parseSSU(faculty_id, group_id):
+def parseSSU(faculty_id, group_id, message: types.Message):
     a = requests.get(f"https://sgu.ru/schedule/{faculty_id}/do/{group_id}")
     html = a.text
     soup = BeautifulSoup(html, 'html.parser')
@@ -19,18 +20,30 @@ def parseSSU(faculty_id, group_id):
                 curTimeFrame.append("")
             else:
                 informationOfLesson = j.find(class_="lesson-prop__practice")
+                num = j.find(class_="lesson-prop__num")
+                denom = j.find(class_="lesson-prop__denom")
+                currentNum = ""
                 if informationOfLesson is None:
                     informationOfLesson = j.find(class_="lesson-prop__lecture")
                 if informationOfLesson is None:
                     informationOfLesson = ""
                 else:
                     informationOfLesson = informationOfLesson.text
+                if num is None and denom is None:
+                    currentNum = ""
+                elif num is None:
+                    currentNum = "Числитель"
+                elif denom is None:
+                    currentNum = "Знаменатель"
                 lessonNameHtml = j.find(class_="schedule-table__lesson-name")
                 if lessonNameHtml is None:
                     lessonName = ""
                 else:
                     lessonName = lessonNameHtml.text
-                informationOfLesson = informationOfLesson + lessonName
+                if currentNum == numerator_or_denominator(message) or currentNum=="":
+                    informationOfLesson = informationOfLesson + lessonName
+                else:
+                    informationOfLesson = ""
                 curTimeFrame.append(informationOfLesson)
         schedule.append(curTimeFrame)
     days_of_week = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]
