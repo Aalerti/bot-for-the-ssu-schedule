@@ -17,10 +17,52 @@ def init_database():
     database.connect()
     database.create_tables([User])
 
-
-
-# Dict[str, List[Dict[str, str]]]
 import re
+def parse_lesson_info(lesson_str):
+
+    room_pattern = r'ауд\.\s*(\d+[^,]*)(?:,\s*([\w\s-]*корп\.?))?'
+    room_match = re.search(room_pattern, lesson_str)
+
+
+    if room_match:
+        room = room_match.group(1).strip()
+        if room_match.group(2):
+            room += ", " + room_match.group(2).strip()
+
+        lesson_str = re.sub(room_pattern, '', lesson_str).strip()
+    else:
+        room = None
+
+
+    lecturer_pattern = r'([А-ЯЁ][а-яё]*\s+[А-ЯЁ]\.\s*[А-ЯЁ]\.)'
+    lecturer_match = re.search(lecturer_pattern, lesson_str)
+
+    if lecturer_match:
+        lecturer = lecturer_match.group(1).strip()
+        # Удаляем имя преподавателя из исходной строки
+        lesson_str = re.sub(lecturer_pattern, '', lesson_str).strip()
+    else:
+        lecturer = None
+
+
+    lesson_type_pattern = r'^(ЛЕКЦИЯ|ПРАКТИКА|СЕМИНАР|ЛАБОРАТОРНАЯ)\s+'
+    lesson_type_match = re.match(lesson_type_pattern, lesson_str)
+
+    if lesson_type_match:
+        lesson_type = lesson_type_match.group(1)
+        subject = re.sub(lesson_type_pattern, '', lesson_str).strip()
+    else:
+        lesson_type = None
+        subject = lesson_str.strip()
+
+    return {
+        'type': lesson_type,
+        'subject': subject,
+        'lecturer': lecturer,
+        'room': room
+    }
+
+
 def show_day_schedule_to_user(schedule: dict, day: str, week_type: str) -> str:
     day_schedule = schedule.get(day, [])
 
@@ -43,9 +85,17 @@ def show_day_schedule_to_user(schedule: dict, day: str, week_type: str) -> str:
             time = time.strip()
             subject = subject.strip()
 
-            # Убираем лишние дефисы и пробелы в начале премета
+            parsed = parse_lesson_info(subject)
+
+
             if subject.startswith('-'):
                 subject = subject[1:].strip()
+
+            subject = f"{parsed['type']}: {parsed['subject']}\n"
+            if parsed['lecturer']:
+                subject += f"Преподаватель: {parsed['lecturer']}\n"
+            if parsed['room']:
+                subject += f"Аудитория: {parsed['room']}"
         else:
             time = "Время не указано"
             subject = cleaned_str.strip()
@@ -82,30 +132,27 @@ def show_week_schedule_to_user(schedule: dict, week_type: str) -> str:
                 time = time.strip()
                 subject = subject.strip()
 
-                # Убираем лишние дефисы и пробелы в начале премета
+                parsed = parse_lesson_info(subject)
+
+
                 if subject.startswith('-'):
                     subject = subject[1:].strip()
+
+                subject = f"{parsed['type']}: {parsed['subject']}\n"
+                if parsed['lecturer']:
+                    subject += f"Преподаватель: {parsed['lecturer']}\n"
+                if parsed['room']:
+                    subject += f"Аудитория: {parsed['room']}"
             else:
                 time = "Время не указано"
                 subject = cleaned_str.strip()
 
-            # Добавляем номер пары
+
             result += f"{i}. 🕒 {time} - {subject}\n\n"
 
 
     return result
 
-
-"""
-Функции для обращения к базе данных, возвращают все три нужных параметра для парсера 
-"""
-def get_week_type(message: types.Message) -> str:
-    numerator_or_denominator(message)
-
-def get_user_data(user_id: int) -> Optional[Dict]:
-    """
-    Я передумал: наверно, эта функция не нужна)))
-    """
 
 def get_user_faculty_id(user_id: int) -> Optional[str]:
 
@@ -138,12 +185,7 @@ def set_user_faculty(user_id: int, faculty_id: str):
     user.faculty_id = faculty_id
     user.save()
     return
-def set_user_data(user_id: int) -> Optional[Dict]:
-    """
-    Заглушка.
-    Получить данные пользователя из БД
-    """
-    return
+
 
 def set_user_group(user_id: int, group_name: str):
     user = User.select().where(User.user_id == user_id).first()
