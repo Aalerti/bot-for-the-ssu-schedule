@@ -44,7 +44,7 @@ async def handler_day(message: types.Message):
         await message.answer(f"Произошла ошибка при получении расписания. Попробуйте позже {e}")
 
 
-@router.message(F.text == "📅 Неделя")
+@router.message(F.text == "📋 Неделя")
 async def handler_week(message: types.Message):
     try:
         user_faculty = get_user_faculty_id(message.from_user.id)
@@ -65,7 +65,7 @@ async def handler_week(message: types.Message):
         saratov_date = saratov_time.date() + timedelta(days=1)
         week_type = determine_week_type(saratov_date)
 
-        schedule = parseSSU()
+        schedule = parseSSU(user_faculty, user_group, message)
 
         await message.answer(show_week_schedule_to_user(schedule, week_type))
 

@@ -17,21 +17,7 @@ def init_database():
     database.connect()
     database.create_tables([User])
 
-def get_group_schedule(faculty_id: str, group_id: str, week_type: str) -> Dict[str, List[Dict[str, str]]]:
-    """
-    Эта функция будет заменена на реальный парсер.
-    Пока что я составил свое расписание мечты :).
-    """
-    # week_type - это "числитель" или "знаменатель"
-    return {
-        "monday": [
-            {"time": "9:00", "subject": "Математика", "teacher": "Иванов И.И.", "room": "101"},
-            {"time": "10:50", "subject": "Физика", "teacher": "Петров П.П.", "room": "202"}
-        ],
-        "tuesday": [
-            {"time": "9:00", "subject": "Программирование", "teacher": "Сидоров С.С.", "room": "Лаб. 505"}
-        ],
-    }
+
 
 # Dict[str, List[Dict[str, str]]]
 import re
@@ -51,13 +37,13 @@ def show_day_schedule_to_user(schedule: dict, day: str, week_type: str) -> str:
         cleaned_str = re.sub(r'\s+', ' ', lesson_str).strip()
 
 
-        # Разделяем время и предмет
+        # Разделяем времмя и предмет
         if ": " in cleaned_str:
             time, subject = cleaned_str.split(": ", 1)
             time = time.strip()
             subject = subject.strip()
 
-            # Убираем лишние дефисы и пробелы в начале предмета
+            # Убираем лишние дефисы и пробелы в начале премета
             if subject.startswith('-'):
                 subject = subject[1:].strip()
         else:
@@ -70,12 +56,45 @@ def show_day_schedule_to_user(schedule: dict, day: str, week_type: str) -> str:
 
     return result
 
-def show_week_schedule_to_user(schedule: Dict[str, List[Dict[str, str]]], week_type: str) -> str:
-    """
-    Заглушка.
-    Позже будет возвращать оформленное расписание на всю неделю.
-    """
-    answer: str = ""
+def show_week_schedule_to_user(schedule: dict, week_type: str) -> str:
+    result = f"📅 Неделя: ({week_type})\n\n"
+
+    if not dict:
+        return f"📅 На эту неделю пар нет или ещё не добавили)🎉\n\n"
+
+
+    for day in ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]:
+        day_schedule = schedule.get(day, [])
+        if not day_schedule:
+            result += f"📅 {day} ({week_type})Пар нет! 🎉\n\n"
+        else:
+            result += f"📅 {day}\n\n"
+
+        # Обрабатываем каждую пару
+        for i, lesson_str in enumerate(day_schedule, 1):
+            # Очищаем строку от лишних пробелов и переносов
+            cleaned_str = re.sub(r'\s+', ' ', lesson_str).strip()
+
+
+            # Разделяем времмя и предмет
+            if ": " in cleaned_str:
+                time, subject = cleaned_str.split(": ", 1)
+                time = time.strip()
+                subject = subject.strip()
+
+                # Убираем лишние дефисы и пробелы в начале премета
+                if subject.startswith('-'):
+                    subject = subject[1:].strip()
+            else:
+                time = "Время не указано"
+                subject = cleaned_str.strip()
+
+            # Добавляем номер пары
+            result += f"{i}. 🕒 {time} - {subject}\n\n"
+
+
+    return result
+
 
 """
 Функции для обращения к базе данных, возвращают все три нужных параметра для парсера 
