@@ -31,9 +31,9 @@ def parseSSU(faculty_id, group_id, message: types.Message):
                     informationOfLesson = informationOfLesson.text
                 if num is None and denom is None:
                     currentNum = ""
-                elif num is None:
-                    currentNum = "Числитель"
                 elif denom is None:
+                    currentNum = "Числитель"
+                elif num is None:
                     currentNum = "Знаменатель"
                 lessonNameHtml = j.find(class_="schedule-table__lesson-name")
                 teacherName = ""
