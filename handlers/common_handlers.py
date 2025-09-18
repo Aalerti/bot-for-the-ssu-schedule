@@ -7,6 +7,7 @@ from services.week_type import determine_week_type
 from datetime import timedelta
 from parser.parse import parseSSU
 import pytz
+from config import load_admins
 
 router = Router()
 
@@ -136,3 +137,15 @@ def get_name_of_day(day_number: int) -> str:
     days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
     return days[day_number - 1]
 
+
+@router.message(F.text == "stat")
+async def stat_command(message: types.Message):
+    admin_ids = load_admins()
+    # Проверяем, есть ли ID пользователя в списке разрешённых
+    if message.from_user.id not in admin_ids:
+        await message.answer("❌ У вас нет доступа к этой команде.")
+        return  # Завершаем выполнение функции
+
+    # Здесь будет основная логика команды /stat
+    # Пока это заглушка, которую можно расширить
+    await message.answer("📊 Статистика:\n...")

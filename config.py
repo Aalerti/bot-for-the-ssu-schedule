@@ -7,3 +7,6 @@ def load_config():
     if token is None:
         raise ValueError("Токен не найден! Проверь файл .env")
     return type('Config', (), {'token': token})()
+
+def load_admins() -> list:
+    return list(map(int, os.getenv('ADMIN_IDS', '').split(',')))
