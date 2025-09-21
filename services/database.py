@@ -327,3 +327,6 @@ def group_exists(faculty_id: str, group_id: str) -> bool:
 def faculty_exists(faculty_id: str) -> bool:
     all_faculties = get_all_faculties()
     return faculty_id in all_faculties
+def get_stat() :
+    len_of_users = len(User.select())
+    return len_of_users
