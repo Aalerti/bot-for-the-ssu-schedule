@@ -4,7 +4,7 @@ venv/
 env/
 .venv/
 
-users.db
+*.db
 
 # Игнорируем кеш-файлы Python
 __pycache__/
