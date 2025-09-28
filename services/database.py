@@ -65,42 +65,35 @@ def parse_lesson_info(lesson_str):
 
 def show_day_schedule_to_user(schedule: dict, day: str, week_type: str) -> str:
     day_schedule = schedule.get(day, [])
-
     # Если пар нет
-    if not day_schedule:
+    if day_schedule==['']*8:
         return f"📅 {day} ({week_type})\n\nПар нет! 🎉"
 
     # Формируем заголовок
     result = f"📅 {day} ({week_type})\n\n"
-
+    timearr = ["8:20-9:50", "10:00-11:35", "12:05-13:40", "13:50-15:25", "15:35-17:10", "17:20-18:40", "18:45-20:05", "20:10-21:30" ]
     # Обрабатываем каждую пару
     for i, lesson_str in enumerate(day_schedule, 1):
         # Очищаем строку от лишних пробелов и переносов
         cleaned_str = re.sub(r'\s+', ' ', lesson_str).strip()
 
 
-        # Разделяем времмя и предмет
-        if ": " in cleaned_str:
-            time, subject = cleaned_str.split(": ", 1)
-            time = time.strip()
-            subject = subject.strip()
+        subject = cleaned_str
+        time = timearr[i-1]
+        subject = subject.strip()
 
-            parsed = parse_lesson_info(subject)
+        parsed = parse_lesson_info(subject)
 
 
-            if subject.startswith('-'):
-                subject = subject[1:].strip()
-
-            subject = f"{parsed['type']}: {parsed['subject']}\n"
-            if parsed['lecturer']:
-                subject += f"Преподаватель: {parsed['lecturer']}\n"
-            if parsed['room']:
-                subject += f"Аудитория: {parsed['room']}"
-        else:
-            time = "Время не указано"
-            subject = cleaned_str.strip()
-
-        # Добавляем номер пары
+        if subject.startswith('-'):
+            subject = subject[1:].strip()
+        subject = f"{parsed['type']}: {parsed['subject']}\n"
+        if parsed['lecturer']:
+            subject += f"Преподаватель: {parsed['lecturer']}\n"
+        if parsed['room']:
+            subject += f"Аудитория: {parsed['room']}"
+        if "None" in subject:
+            continue
         result += f"{i}. 🕒 {time} - {subject}\n\n"
 
 
@@ -115,8 +108,9 @@ def show_week_schedule_to_user(schedule: dict, week_type: str) -> str:
 
     for day in ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]:
         day_schedule = schedule.get(day, [])
-        if not day_schedule:
-            result += f"📅 {day} ({week_type})Пар нет! 🎉\n\n"
+        timearr = ["8:20-9:50", "10:00-11:35", "12:05-13:40", "13:50-15:25", "15:35-17:10", "17:20-18:40", "18:45-20:05", "20:10-21:30"]
+        if day_schedule == ['']*8:
+            result+= f"📅 {day} ({week_type})\n\nПар нет! 🎉"
         else:
             result += f"📅 {day}\n\n"
 
@@ -125,29 +119,21 @@ def show_week_schedule_to_user(schedule: dict, week_type: str) -> str:
             # Очищаем строку от лишних пробелов и переносов
             cleaned_str = re.sub(r'\s+', ' ', lesson_str).strip()
 
+            subject = cleaned_str
+            time = timearr[i - 1]
+            subject = subject.strip()
 
-            # Разделяем времмя и предмет
-            if ": " in cleaned_str:
-                time, subject = cleaned_str.split(": ", 1)
-                time = time.strip()
-                subject = subject.strip()
+            parsed = parse_lesson_info(subject)
 
-                parsed = parse_lesson_info(subject)
-
-
-                if subject.startswith('-'):
-                    subject = subject[1:].strip()
-
-                subject = f"{parsed['type']}: {parsed['subject']}\n"
-                if parsed['lecturer']:
-                    subject += f"Преподаватель: {parsed['lecturer']}\n"
-                if parsed['room']:
-                    subject += f"Аудитория: {parsed['room']}"
-            else:
-                time = "Время не указано"
-                subject = cleaned_str.strip()
-
-
+            if subject.startswith('-'):
+                subject = subject[1:].strip()
+            subject = f"{parsed['type']}: {parsed['subject']}\n"
+            if parsed['lecturer']:
+                subject += f"Преподаватель: {parsed['lecturer']}\n"
+            if parsed['room']:
+                subject += f"Аудитория: {parsed['room']}"
+            if "None" in subject:
+                continue
             result += f"{i}. 🕒 {time} - {subject}\n\n"
 
 

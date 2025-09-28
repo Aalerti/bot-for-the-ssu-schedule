@@ -7,60 +7,92 @@ def parseSSU(faculty_id, group_id, message: types.Message):
     html = a.text
     soup = BeautifulSoup(html, 'html.parser')
     scheduleHTML = soup.find("tbody")
+    weekType = numerator_or_denominator(message)
     windows = scheduleHTML.find_all("tr")
-    # print(windows[0])
     schedule = []
     for i in windows:
+        lessons = i.find_all(class_="schedule-table__col")
+        num = 0
         curTimeFrame = []
-        time = i.find(class_="schedule-table__header")
-        curTimeFrame.append(time.text)
-        currentLessons = i.find_all(class_="schedule-table__col")
-        for j in currentLessons:
-            if j.text == " ":
+        for j in lessons:
+            lessonsInDayCurrentTimeFrame = j.find_all(class_="schedule-table__lesson")
+            if len(lessonsInDayCurrentTimeFrame) ==0:
                 curTimeFrame.append("")
-            else:
-                informationOfLesson = j.find(class_="lesson-prop__practice")
-                num = j.find(class_="lesson-prop__num")
-                denom = j.find(class_="lesson-prop__denom")
+                continue
+            elif len(lessonsInDayCurrentTimeFrame) ==1:
                 currentNum = ""
-                if informationOfLesson is None:
-                    informationOfLesson = j.find(class_="lesson-prop__lecture")
-                if informationOfLesson is None:
-                    informationOfLesson = ""
-                else:
-                    informationOfLesson = informationOfLesson.text
-                if num is None and denom is None:
-                    currentNum = ""
-                elif denom is None:
-                    currentNum = "Числитель"
-                elif num is None:
-                    currentNum = "Знаменатель"
-                lessonNameHtml = j.find(class_="schedule-table__lesson-name")
-                teacherName = ""
-                roomName = ""
-                if lessonNameHtml is None:
-                    lessonName = ""
-                else:
+                lesson = lessonsInDayCurrentTimeFrame[0]
+                try:
+                    currentNum = lesson.find(class_="lesson-prop__num").text
+                except:
+                    pass
+                try:
+                    if "Ч" not in currentNum:
+                        currentNum = lesson.find(class_="lesson-prop__denom").text
+                except:
+                    pass
+                if weekType in currentNum or currentNum=="":
+                    lectOrPract = lesson.find(class_="lesson-prop__practice")
+                    if lectOrPract is None:
+                        lectOrPract = j.find(class_="lesson-prop__lecture")
+                    if lectOrPract is None:
+                        lectOrPract = ""
+                    else:
+                        lectOrPract = lectOrPract.text
+                    lessonNameHtml = lesson.find(class_="schedule-table__lesson-name")
                     lessonName = lessonNameHtml.text
-                    teacherNameHtml = j.find(class_="schedule-table__lesson-teacher")
-                    roomNameHtml = j.find(class_="schedule-table__lesson-room")
+                    teacherNameHtml = lesson.find(class_="schedule-table__lesson-teacher")
+                    roomNameHtml = lesson.find(class_="schedule-table__lesson-room")
                     teacherName = " " + teacherNameHtml.text
                     roomName = " " + roomNameHtml.text
-                if currentNum == numerator_or_denominator(message) or currentNum=="":
-                    informationOfLesson = informationOfLesson + lessonName + teacherName + roomName
+                    lessonInfo = lectOrPract + lessonName + teacherName + roomName
+                    curTimeFrame.append(lessonInfo)
                 else:
-                    informationOfLesson = ""
-                curTimeFrame.append(informationOfLesson)
+                    curTimeFrame.append("")
+            elif len(lessonsInDayCurrentTimeFrame)>1:
+                for lesson in lessonsInDayCurrentTimeFrame:
+                    currentNum = ""
+                    try:
+                        currentNum = lesson.find(class_="lesson-prop__num").text
+                    except:
+                        pass
+                    try:
+                        if "Ч" not in currentNum:
+                            currentNum = lesson.find(class_="lesson-prop__denom").text
+                    except:
+                        pass
+                    if weekType in currentNum or currentNum=="":
+                        lectOrPract = lesson.find(class_="lesson-prop__practice")
+                        if lectOrPract is None:
+                            lectOrPract = j.find(class_="lesson-prop__lecture")
+                        if lectOrPract is None:
+                            lectOrPract = ""
+                        else:
+                            lectOrPract = lectOrPract.text
+                        lessonNameHtml = lesson.find(class_="schedule-table__lesson-name")
+                        lessonName = lessonNameHtml.text
+                        teacherNameHtml = lesson.find(class_="schedule-table__lesson-teacher")
+                        roomNameHtml = lesson.find(class_="schedule-table__lesson-room")
+                        teacherName = " " + teacherNameHtml.text
+                        roomName = " " + roomNameHtml.text
+                        lessonInfo = lectOrPract + lessonName + teacherName + roomName
+                        curTimeFrame.append(lessonInfo)
+                        break
+                    else:
+                        if lesson == lessonsInDayCurrentTimeFrame[-1]:
+                            curTimeFrame.append("")
+                        continue
+            num+=1
         schedule.append(curTimeFrame)
     days_of_week = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"]
 
-    result = {day: [] for day in days_of_week}
+    week_schedule = {day: [] for day in days_of_week}
 
-    for row in schedule:
-        time_slot = row.pop(0)
+    for i, daily_activities in enumerate(schedule):
+        for j, activity in enumerate(daily_activities):
+            week_schedule[days_of_week[j % len(days_of_week)]].append(activity)
 
-        for i, subject in enumerate(row):
-            if subject.strip():
-                result[days_of_week[i]].append(f"{time_slot}: {subject}")
+    result = week_schedule
 
     return result
+
